@@ -1,18 +1,17 @@
 import json
-import os
-from googleapiclient.discovery import build
+from src.apimixin import APIMixin
 
 
-class Channel:
+class Channel(APIMixin):
     """Класс для ютуб-канала"""
-    api_key: str = os.getenv('YouTube-API')
-    # создать специальный объект для работы с API
-    youtube = build('youtube', 'v3', developerKey=api_key)
+    # api_key: str = os.getenv('YouTube-API')
+    # # создать специальный объект для работы с API
+    # youtube = build('youtube', 'v3', developerKey=api_key)
 
     def __init__(self, channel_id: str) -> None:
         """Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API."""
         self.__channel_id = channel_id
-        self.channel = self.youtube.channels().list(id=self.channel_id, part='snippet,statistics').execute()
+        self.channel = self.get_service().channels().list(id=self.channel_id, part='snippet,statistics').execute()
         self.title = self.channel['items'][0]['snippet']['title']
         self.description = self.channel['items'][0]['snippet']['description']
         self.url = 'https://www.youtube.com/channel/' + channel_id
@@ -52,10 +51,10 @@ class Channel:
     def channel_id(self):
         return self.__channel_id
 
-    @classmethod
-    def get_service(cls):
-        """Возвращает объект для работы с YouTube API"""
-        return cls.youtube
+    # @classmethod
+    # def get_service(cls):
+    #     """Возвращает объект для работы с YouTube API"""
+    #     return cls.youtube
 
     def to_json(self, file_name):
         """Cохраняет в файл значения атрибутов экземпляра Channel"""
